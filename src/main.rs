@@ -1,42 +1,46 @@
 use std::net::SocketAddr;
 use axum::{
-    routing::get,
+    routing::{get, get_service},
     Router,
-    response::Html,
+    response::{Html, IntoResponse},
 };
 
-use tokio::{
-    fs, io::AsyncReadExt,
+use tower_http::{
+    services::ServeDir,
 };
+
+mod unit;
+mod superunit;
+
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+fn routes_dynamic() -> Router {
+    Router::new()
+        .route("/", get(|| async { Html("<head><meta http-equiv=\"refresh\" content=\"0; URL=/home/\"/></head>") }))
+        .route("/home/", get(|| async { Html("<a href='/res/test.mkv' download>download</a>") }))
+}
+
+fn routes_static() -> Router {
+    Router::new()
+        .nest_service("/download/", get_service(ServeDir::new("./res").with_buf_chunk_size(512000)))
+}
 
 #[tokio::main]
 async fn main() {
-    // build our application with a single route
-    let app = Router::new()
-        .route("/", get(|| async { Html("<head><meta http-equiv=\"refresh\" content=\"0; URL=/home/\"/></head>") }))
-        .route("/home/", get(|| async { Html("<a href='/res/vid.mp4'>download</a>") }))
-        .route("/res/vid.mp4", get(test));
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
+    let routes_all = Router::new()
+        .merge(routes_dynamic())
+        .merge(routes_static());
 
     axum::Server::bind(&SocketAddr::from(([0,0,0,0], 1888)))
-        .serve(app.into_make_service())
+        .serve(routes_all.into_make_service())
         .await
         .unwrap();
 }
 
-async fn test() -> Vec<u8> {
-    let mut file = fs::OpenOptions::new().read(true).open("./res/test.mp4").await.unwrap();
-    // convert the `AsyncRead` into a `Stream`
-    let stream = ReaderStream::new(file);
-    // convert the `Stream` into an `axum::body::HttpBody`
-    let body = StreamBody::new(stream);
+async fn test() -> impl IntoResponse {
 
-    let headers = Headers([
-        (header::CONTENT_TYPE, "text/toml; charset=utf-8"),
-        (
-            header::CONTENT_DISPOSITION,
-            "attachment; filename=\"Cargo.toml\"",
-        ),
-    ]);
-
-    Ok((headers, body))
 }
