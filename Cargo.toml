@@ -1,6 +1,6 @@
 [package]
 name = "roundhay-server"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 
 [dependencies]
@@ -10,3 +10,7 @@ tower-http = {version="0.4.*", features=["fs"]}
 tracing-subscriber = {version="0.3.17"}
 serde = {version="1.0.*", features=["derive"]}
 serde_json = {version="1.0.*"}
+
+[features]
+print-unit = []
+print-superunit = []
