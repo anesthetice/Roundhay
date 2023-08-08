@@ -4,15 +4,13 @@ use axum::{
     Router,
     response::{Html, IntoResponse},
 };
-use superunit::Superunit;
-use tower_http::{
-    services::ServeDir,
-};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tower_http::services::ServeDir;
 
 mod unit;
 mod superunit;
 mod print;
+
+use superunit::Superunit;
 
 fn routes_dynamic() -> Router {
     Router::new()
@@ -37,10 +35,6 @@ async fn main() -> () {
     print::print_superunit();
     #[cfg(feature = "print-superunit")]
     return;
-
-    tracing_subscriber::registry()
-    .with(tracing_subscriber::fmt::layer())
-    .init();
 
     let routes_all = Router::new()
         .merge(routes_dynamic())
