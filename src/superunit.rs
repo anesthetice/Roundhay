@@ -1,12 +1,7 @@
-use crate::unit::{
-    Unit,
-    Encoding,
-    Resolution,
-    Language,
-};
 use serde::{Serialize, Deserialize};
 use serde_json;
 use tokio::{fs::OpenOptions, io::AsyncReadExt};
+use crate::unit::Unit;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Superunit {
@@ -62,7 +57,7 @@ impl Superunit {
                     if index != length-1 {subtitles.push_str(", ")}
                 }
             } else if length == 1 {subtitles.push_str(&unit.subtitles[0].to_string());
-            } else {subtitles.push_str("?")}
+            } else {subtitles.push_str("")}
             html.push_str(&format!("<td>{}</td>", subtitles));
 
             html.push_str(&format!("<td>{}</td>", unit.resolution.to_string()));
@@ -71,7 +66,7 @@ impl Superunit {
 
             html.push_str(&format!("<td>{} MB</td>", unit.size));
 
-            html.push_str(&format!("<td><a href=\"/download/{}\">⬇</a></td>", unit.path.to_str().unwrap_or("error")));
+            html.push_str(&format!("<td><a href=\"/download/{}\" download>⬇</a></td>", unit.path.to_str().unwrap_or("error")));
 
             html.push_str("</tr>");
         });

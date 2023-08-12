@@ -47,6 +47,7 @@ async fn main() -> () {
 }
 
 async fn dynamic_handler() -> impl IntoResponse {
+    println!("[INFO] /home/ handler called");
     let html_head: String = "
     <!DOCTYPE html>
     <html lang=\"en\">
