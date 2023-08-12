@@ -1,6 +1,7 @@
 use serde::{Serialize, Deserialize};
 use serde_json;
 use tokio::{fs::OpenOptions, io::AsyncReadExt};
+use ryu;
 use crate::unit::Unit;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -30,7 +31,7 @@ impl Superunit {
         Self::new()
     }
     pub fn to_html_string(&self) -> String {
-        let mut html: String = String::from("<table><thead><tr><th>title</th><th>year</th><th>languages</th><th>subtitles</th><th>resolution</th><th>encoding</th><th>size</th><th><download></th></tr></thead><tbody>");
+        let mut html: String = String::from("<table><thead><tr><th>title</th><th>year</th><th>languages</th><th>subtitles</th><th>resolution</th><th>encoding</th><th>size [MB]</th><th>download</th></tr></thead><tbody>");
         self.units.iter().for_each(|unit| {
             html.push_str("<tr>");
             
@@ -64,7 +65,7 @@ impl Superunit {
 
             html.push_str(&format!("<td>{}</td>", unit.encoding.to_string()));
 
-            html.push_str(&format!("<td>{} MB</td>", unit.size));
+            html.push_str("<td>"); html.push_str(ryu::Buffer::new().format_finite(unit.size)); html.push_str("</td>");
 
             html.push_str(&format!("<td><a href=\"/download/{}\" download>⬇</a></td>", unit.path.to_str().unwrap_or("error")));
 
