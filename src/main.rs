@@ -55,7 +55,7 @@ async fn dynamic_handler() -> impl IntoResponse {
         <meta charset=\"UTF-8\">
         <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
         <meta name=\"description\" content=\"server\">
-        <meta name=\"author\" content=\"anesthetice/oether\">
+        <meta name=\"author\" content=\"anesthetice\">
         <title>Roundhay 1.0.0</title>
         <style>
         table {
@@ -73,7 +73,7 @@ async fn dynamic_handler() -> impl IntoResponse {
           font-weight: bold;
         }
         tbody tr:nth-child(even) {
-          background-color: #f2f2f2;
+          background-color: #d0d3d9;
         }
       </style>
     </head>
