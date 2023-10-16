@@ -7,10 +7,12 @@ use axum::{
 use tower_http::services::ServeDir;
 
 mod unit;
+mod traits;
 mod superunit;
 mod print;
 
 use superunit::Superunit;
+use crate::traits::WebContent;
 
 fn routes_dynamic() -> Router {
     Router::new()
@@ -58,28 +60,28 @@ async fn dynamic_handler() -> impl IntoResponse {
         <meta name=\"author\" content=\"anesthetice\">
         <title>Roundhay 1.0.0</title>
         <style>
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          border: 1px solid #ccc;
-        }
-        th, td {
-          padding: 8px;
-          text-align: left;
-          border-bottom: 1px solid #ccc;
-        }
-        th {
-          background-color: #f2f2f2;
-          font-weight: bold;
-        }
-        tbody tr:nth-child(even) {
-          background-color: #d0d3d9;
-        }
-      </style>
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ccc;
+          }
+          th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+          }
+          th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+          }
+          tbody tr:nth-child(even) {
+            background-color: #d0d3d9;
+          }
+        </style>
     </head>
     <body>".to_string();
 
-    let html_table = Superunit::load().await.to_html_string();
+    let html_table = Superunit::load().await.as_html_string();
 
     Html(format!("{}{}</body></html>", html_head, html_table))
 }

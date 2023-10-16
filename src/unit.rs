@@ -1,8 +1,9 @@
 use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
+use crate::traits::{self, WebContent};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Unit {
+pub struct UnitSingle {
     // the title of the movie or show should be formatted as such: [NAME] - [SEASON][EPISODE]
     // i.e. Kingdom - s02e05
     pub title: String,
@@ -15,6 +16,94 @@ pub struct Unit {
     // the size of the media in megabytes (MB)
     pub size: f64,
     pub path: PathBuf,
+}
+
+impl WebContent for UnitSingle {
+    fn as_html_string(&self) -> String {
+
+        let mut languages: String = String::new();
+        let length: usize = self.languages.len();
+        if length > 1 {
+            for (index, language) in self.languages.iter().enumerate() {
+                languages.push_str(&language.to_string());
+                if index != length-1 {languages.push_str(", ")}
+            }
+        } else if length == 1 {languages.push_str(&self.languages[0].to_string());
+        } else {languages.push_str("?")}
+        
+        let mut subtitles: String = String::new();
+        let length: usize = self.subtitles.len();
+        if length > 1 {
+            for (index, subtitle) in self.subtitles.iter().enumerate() {
+                subtitles.push_str(&subtitle.to_string());
+                if index != length-1 {subtitles.push_str(", ")}
+            }
+        } else if length == 1 {subtitles.push_str(&self.subtitles[0].to_string());
+        } else {subtitles.push_str("")}
+
+        format!(
+        "
+        <tr>
+            <td>
+                <span title=\"{}\">
+                    {}
+                </span>
+            </td>
+            <td>
+                {}
+            </td>
+            <td>
+                {}
+            </td>
+            <td>
+                {}
+            </td>
+            <td>
+                {}
+            </td>
+            <td>
+                {}
+            </td>
+            <td>
+                {}
+            </td>
+            <td>
+                <a href=\"/download/{}\" download>
+                    ⬇
+                </a>
+            </td>
+        ", self.description, self.title, self.year, languages, subtitles, self.resolution.to_string(), self.encoding.to_string(), ryu::Buffer::new().format_finite(self.size), self.path.to_str().unwrap_or("error"))
+
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UnitGroup {
+    pub title: String,
+    pub description: String,
+    pub year: u16,
+    pub units: Vec<UnitSingle>
+}
+
+impl WebContent for UnitGroup {
+    fn as_html_string(&self) -> String {
+        String::new()
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Unit {
+    Single(UnitSingle),
+    Group(UnitGroup),
+}
+
+impl WebContent for Unit {
+    fn as_html_string(&self) -> String {
+        match self {
+            Self::Single(unitsingle) => unitsingle.as_html_string(),
+            Self::Group(unitgroup) => unitgroup.as_html_string(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
