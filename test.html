@@ -11,7 +11,6 @@
             display: none;
         }
     </style>
-
 </head>
 <body>
     <table>
@@ -20,7 +19,7 @@
         </tr>
         <tr>
             <td>
-                <u onclick="showhideSeries(1)">
+                <u onclick="showhideElements(1)">
                     name s01
                 </u>
             </td>
@@ -34,7 +33,7 @@
         </div>
     </table>
     <script>
-        function showhideSeries(id) {
+        function showhideElements(id) {
             var elements = document.querySelectorAll(`[id='${id}']`);
             for (var i = 0; i < elements.length; i++) {
                 if (elements[i].classList.contains('hidden')) {

@@ -77,7 +77,22 @@ async fn dynamic_handler() -> impl IntoResponse {
           tbody tr:nth-child(even) {
             background-color: #d0d3d9;
           }
+          .hidden {
+            display: none;
+          }
         </style>
+        <script>
+          function showhideElements(id) {
+            var elements = document.querySelectorAll(`[id='${id}']`);
+            for (var i = 0; i < elements.length; i++) {
+                if (elements[i].classList.contains('hidden')) {
+                    elements[i].classList.remove('hidden');
+                } else {
+                    elements[i].classList.add('hidden');
+                }
+            }
+        } 
+        </script>
     </head>
     <body>".to_string();
 

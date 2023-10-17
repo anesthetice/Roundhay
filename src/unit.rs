@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, fmt::format};
 use serde::{Serialize, Deserialize};
 use crate::traits::{self, WebContent};
 
@@ -73,7 +73,6 @@ impl WebContent for UnitSingle {
                 </a>
             </td>
         ", self.description, self.title, self.year, languages, subtitles, self.resolution.to_string(), self.encoding.to_string(), ryu::Buffer::new().format_finite(self.size), self.path.to_str().unwrap_or("error"))
-
     }
 }
 
@@ -87,7 +86,33 @@ pub struct UnitGroup {
 
 impl WebContent for UnitGroup {
     fn as_html_string(&self) -> String {
-        String::new()
+        let mut string: String = format!(
+        "
+        <tr>
+            <td>
+                <span title=\"{}\">
+                    <u onclick=\"showhideElements(\"{}\")\">
+                        {}
+                    </u>
+                </span>
+            </td>
+            <td>
+                {}
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        ", self.description, self.title, self.title, self.year);
+
+        self.units.iter().for_each(|unit| {
+            string.push_str(unit.as_html_string().replace("<tr>", format!("<tr class=\"hidden\" id=\"{}\">", self.title).as_ref()).as_ref());
+        });
+
+        string
     }
 }
 
@@ -165,6 +190,9 @@ pub struct Resolution {
 impl Resolution {
     pub fn new(width: u16, height: u16) -> Self {
         Self {width, height}
+    }
+    pub fn _1080p() -> Self {
+        Self {width: 1920, height: 1080}
     }
     pub fn to_string(&self) -> String {
         format!("{}x{}", self.width, self.height)

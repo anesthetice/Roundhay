@@ -35,7 +35,21 @@ impl Superunit
 
 impl WebContent for Superunit {
     fn as_html_string(&self) -> String {
-        let mut html: String = String::from("<table><thead><tr><th>title</th><th>year</th><th>languages</th><th>subtitles</th><th>resolution</th><th>encoding</th><th>size [MB]</th><th>download</th></tr></thead><tbody>");
+        let mut html: String = format!(
+            "<table>
+                <thead>
+                    <tr>
+                        <th>title</th>
+                        <th>year</th>
+                        <th>languages</th>
+                        <th>subtitles</th>
+                        <th>resolution</th>
+                        <th>encoding</th>
+                        <th>size [MB]</th>
+                        <th>download</th>
+                    </tr>
+                </thead>
+                <tbody>");
         self.units.iter().for_each(|unit| {
             html.push_str(unit.as_html_string().as_ref())
         });
