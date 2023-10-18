@@ -73,9 +73,6 @@ async fn dynamic_handler() -> impl IntoResponse {
             background-color: #f2f2f2;
             font-weight: bold;
           }
-          tbody tr:nth-child(even) {
-            background-color: #d0d3d9;
-          }
           .hidden {
             display: none;
           }
