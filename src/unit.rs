@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use serde::{Serialize, Deserialize};
 use crate::traits::WebContent;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UnitSingle {
@@ -20,29 +20,44 @@ pub struct UnitSingle {
 
 impl WebContent for UnitSingle {
     fn as_html_string(&self) -> String {
-
         let mut languages: String = String::new();
-        let length: usize = self.languages.len();
-        if length > 1 {
-            for (index, language) in self.languages.iter().enumerate() {
-                languages.push_str(&language.to_string());
-                if index != length-1 {languages.push_str(", ")}
+        match self.languages.len() {
+            0 => {
+                languages.push('?');
             }
-        } else if length == 1 {languages.push_str(&self.languages[0].to_string());
-        } else {languages.push_str("?")}
-        
+            1 => {
+                languages.push_str(&self.languages[0].as_string());
+            }
+            length => {
+                for (index, language) in self.languages.iter().enumerate() {
+                    languages.push_str(&language.as_string());
+                    if index != length - 1 {
+                        languages.push_str(", ")
+                    }
+                }
+            }   
+        }
+
         let mut subtitles: String = String::new();
-        let length: usize = self.subtitles.len();
-        if length > 1 {
-            for (index, subtitle) in self.subtitles.iter().enumerate() {
-                subtitles.push_str(&subtitle.to_string());
-                if index != length-1 {subtitles.push_str(", ")}
+        match self.subtitles.len() {
+            0 => {
+                subtitles.push('?');
             }
-        } else if length == 1 {subtitles.push_str(&self.subtitles[0].to_string());
-        } else {subtitles.push_str("")}
+            1 => {
+                subtitles.push_str(&self.subtitles[0].as_string());
+            }
+            length => {
+                for (index, subtitle) in self.subtitles.iter().enumerate() {
+                    subtitles.push_str(&subtitle.as_string());
+                    if index != length - 1 {
+                        subtitles.push_str(", ")
+                    }
+                }
+            }
+        }
 
         format!(
-"            <tr>
+            "            <tr>
                 <td>
                     <span title=\"{}\">
                         {}
@@ -72,7 +87,17 @@ impl WebContent for UnitSingle {
                     </a>
                 </td>
             </tr>
-", self.description, self.title, self.year, languages, subtitles, self.resolution.to_string(), self.encoding.to_string(), ryu::Buffer::new().format_finite(self.size), self.path.to_str().unwrap_or("error"))
+",
+            self.description,
+            self.title,
+            self.year,
+            languages,
+            subtitles,
+            self.resolution.as_string(),
+            self.encoding.as_string(),
+            ryu::Buffer::new().format_finite(self.size),
+            self.path.to_str().unwrap_or("error")
+        )
     }
 }
 
@@ -81,13 +106,13 @@ pub struct UnitGroup {
     pub title: String,
     pub description: String,
     pub year: u16,
-    pub units: Vec<UnitSingle>
+    pub units: Vec<UnitSingle>,
 }
 
 impl WebContent for UnitGroup {
     fn as_html_string(&self) -> String {
         let mut string: String = format!(
-"            <tr>
+            "            <tr>
                 <td>
                     <span title=\"{}\">
                         <u onclick=\"showhideElements('{}')\">
@@ -105,10 +130,19 @@ impl WebContent for UnitGroup {
                 <td></td>
                 <td></td>
             </tr>
-", self.description, self.title, self.title, self.year);
+",
+            self.description, self.title, self.title, self.year
+        );
 
         self.units.iter().for_each(|unit| {
-            string.push_str(unit.as_html_string().replace("<tr>", format!("<tr class=\"hidden\" id=\"{}\">", self.title).as_ref()).as_ref());
+            string.push_str(
+                unit.as_html_string()
+                    .replace(
+                        "<tr>",
+                        format!("<tr class=\"hidden\" id=\"{}\">", self.title).as_ref(),
+                    )
+                    .as_ref(),
+            );
         });
 
         string
@@ -141,7 +175,7 @@ pub enum Language {
 }
 
 impl Language {
-    pub fn to_string(&self) -> String {
+    pub fn as_string(&self) -> String {
         match self {
             Self::English => "En".to_string(),
             Self::French => "Fr".to_string(),
@@ -169,7 +203,7 @@ pub enum Encoding {
 }
 
 impl Encoding {
-    pub fn to_string(&self) -> String {
+    pub fn as_string(&self) -> String {
         match self {
             Self::H264 => "H264".to_string(),
             Self::H265 => "H265".to_string(),
@@ -188,13 +222,33 @@ pub struct Resolution {
 
 impl Resolution {
     pub fn new(width: u16, height: u16) -> Self {
-        Self {width, height}
+        Self { width, height }
+    }
+    pub fn _720p() -> Self {
+        Self {
+            width: 1280,
+            height: 720
+        }
     }
     pub fn _1080p() -> Self {
-        Self {width: 1920, height: 1080}
+        Self {
+            width: 1920,
+            height: 1080,
+        }
     }
-    pub fn to_string(&self) -> String {
+    pub fn _1440p() -> Self {
+        Self {
+            width: 2560,
+            height: 1440,
+        }
+    }
+    pub fn _2160p() -> Self {
+        Self {
+            width: 2160,
+            height: 3840,
+        }
+    }
+    pub fn as_string(&self) -> String {
         format!("{}x{}", self.width, self.height)
     }
 }
-
