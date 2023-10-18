@@ -1,6 +1,6 @@
-use std::{path::PathBuf, fmt::format};
+use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
-use crate::traits::{self, WebContent};
+use crate::traits::WebContent;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UnitSingle {
@@ -42,37 +42,37 @@ impl WebContent for UnitSingle {
         } else {subtitles.push_str("")}
 
         format!(
-        "
-        <tr>
-            <td>
-                <span title=\"{}\">
+"            <tr>
+                <td>
+                    <span title=\"{}\">
+                        {}
+                    </span>
+                </td>
+                <td>
                     {}
-                </span>
-            </td>
-            <td>
-                {}
-            </td>
-            <td>
-                {}
-            </td>
-            <td>
-                {}
-            </td>
-            <td>
-                {}
-            </td>
-            <td>
-                {}
-            </td>
-            <td>
-                {}
-            </td>
-            <td>
-                <a href=\"/download/{}\" download>
-                    ⬇
-                </a>
-            </td>
-        ", self.description, self.title, self.year, languages, subtitles, self.resolution.to_string(), self.encoding.to_string(), ryu::Buffer::new().format_finite(self.size), self.path.to_str().unwrap_or("error"))
+                </td>
+                <td>
+                    {}
+                </td>
+                <td>
+                    {}
+                </td>
+                <td>
+                    {}
+                </td>
+                <td>
+                    {}
+                </td>
+                <td>
+                    {}
+                </td>
+                <td>
+                    <a href=\"/download/{}\" download>
+                        ⬇
+                    </a>
+                </td>
+            </tr>
+", self.description, self.title, self.year, languages, subtitles, self.resolution.to_string(), self.encoding.to_string(), ryu::Buffer::new().format_finite(self.size), self.path.to_str().unwrap_or("error"))
     }
 }
 
@@ -87,26 +87,25 @@ pub struct UnitGroup {
 impl WebContent for UnitGroup {
     fn as_html_string(&self) -> String {
         let mut string: String = format!(
-        "
-        <tr>
-            <td>
-                <span title=\"{}\">
-                    <u onclick=\"showhideElements(\"{}\")\">
-                        {}
-                    </u>
-                </span>
-            </td>
-            <td>
-                {}
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        ", self.description, self.title, self.title, self.year);
+"            <tr>
+                <td>
+                    <span title=\"{}\">
+                        <u onclick=\"showhideElements('{}')\">
+                            {}
+                        </u>
+                    </span>
+                </td>
+                <td>
+                    {}
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+", self.description, self.title, self.title, self.year);
 
         self.units.iter().for_each(|unit| {
             string.push_str(unit.as_html_string().replace("<tr>", format!("<tr class=\"hidden\" id=\"{}\">", self.title).as_ref()).as_ref());

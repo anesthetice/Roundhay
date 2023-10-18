@@ -1,6 +1,6 @@
 [package]
 name = "roundhay-server"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 
 [dependencies]
@@ -15,5 +15,4 @@ ryu = {version="1.0.*"}
 opt-level = 3
 
 [features]
-print-unit = []
-print-superunit = []
+print = []

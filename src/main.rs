@@ -28,14 +28,9 @@ fn routes_static() -> Router {
 #[tokio::main]
 async fn main() -> () {
 
-    #[cfg(feature = "print-unit")]
-    print::print_unit();
-    #[cfg(feature = "print-unit")]
-    return;
-
-    #[cfg(feature = "print-superunit")]
-    print::print_superunit();
-    #[cfg(feature = "print-superunit")]
+    #[cfg(feature = "print")]
+    print::print();
+    #[cfg(feature = "print")]
     return;
 
     let routes_all = Router::new()
@@ -58,7 +53,7 @@ async fn dynamic_handler() -> impl IntoResponse {
         <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
         <meta name=\"description\" content=\"server\">
         <meta name=\"author\" content=\"anesthetice\">
-        <title>Roundhay 1.0.0</title>
+        <title>Roundhay 1.1.0</title>
         <style>
           table {
             width: 100%;
@@ -81,22 +76,29 @@ async fn dynamic_handler() -> impl IntoResponse {
             display: none;
           }
         </style>
-        <script>
-          function showhideElements(id) {
-            var elements = document.querySelectorAll(`[id='${id}']`);
-            for (var i = 0; i < elements.length; i++) {
-                if (elements[i].classList.contains('hidden')) {
-                    elements[i].classList.remove('hidden');
-                } else {
-                    elements[i].classList.add('hidden');
-                }
-            }
-        } 
-        </script>
     </head>
-    <body>".to_string();
+    <body>
+    ".to_string();
+
+    let javascript: String = "
+    <script>
+      function showhideElements(id) {
+        var elements = document.querySelectorAll(`[id='${id}']`);
+        for (var i = 0; i < elements.length; i++) {
+          if (elements[i].classList.contains('hidden')) {
+            elements[i].classList.remove('hidden');
+          } else {
+            elements[i].classList.add('hidden');
+          }
+        }
+      }
+    </script>
+    ".to_string();
 
     let html_table = Superunit::load().await.as_html_string();
 
-    Html(format!("{}{}</body></html>", html_head, html_table))
+
+
+    Html(format!(
+      "{}{}{}</body>\n</html>", html_head, html_table, javascript))
 }
