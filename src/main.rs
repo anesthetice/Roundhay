@@ -2,8 +2,10 @@ use axum::{
     response::{Html, IntoResponse},
     routing::{get, get_service},
     Router,
+    extract::Query,
 };
-use std::net::SocketAddr;
+use tokio::net::TcpListener;
+use std::{net::SocketAddr, collections::HashMap};
 use tower_http::services::ServeDir;
 
 mod print;
@@ -22,13 +24,17 @@ fn routes_dynamic() -> Router {
                 Html("<head><meta http-equiv=\"refresh\" content=\"0; URL=/home/\"/></head>")
             }),
         )
-        .route("/home/", get(get(dynamic_handler)))
+        .route("/home/", get(get(home_dynamic_handler)))
+        .route("/stream/", get(get(stream_dynamic_handler)))
 }
 
 fn routes_static() -> Router {
     Router::new().nest_service(
-        "/download/",
-        get_service(ServeDir::new("./res").with_buf_chunk_size(512000)),
+        "/res/",
+        get_service(
+          ServeDir::new("../res")
+            .with_buf_chunk_size(2097152)
+          ),
     )
 }
 
@@ -41,46 +47,49 @@ async fn main() {
 
     let routes_all = Router::new().merge(routes_dynamic()).merge(routes_static());
 
-    axum::Server::bind(&SocketAddr::from(([0, 0, 0, 0], 1888)))
-        .serve(routes_all.into_make_service())
-        .await
-        .unwrap();
+    let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], 1888)))
+      .await
+      .unwrap();
+
+    axum::serve(listener, routes_all)
+      .await
+      .unwrap();
 }
 
-async fn dynamic_handler() -> impl IntoResponse {
+async fn home_dynamic_handler() -> impl IntoResponse {
     println!("[INFO] /home/ handler called");
-    let html_head: String = "
-    <!DOCTYPE html>
-    <html lang=\"en\">
-    <head>
-        <meta charset=\"UTF-8\">
-        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-        <meta name=\"description\" content=\"server\">
-        <meta name=\"author\" content=\"anesthetice\">
-        <title>Roundhay 1.1.0</title>
-        <style>
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #ccc;
-          }
-          th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ccc;
-          }
-          th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-          }
-          .hidden {
-            display: none;
-          }
-        </style>
-    </head>
-    <body>
-    "
-    .to_string();
+    let html_head: String = indoc::formatdoc! {
+      "<!DOCTYPE html>
+      <html lang=\"en\">
+      <head>
+          <meta charset=\"UTF-8\">
+          <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+          <meta name=\"description\" content=\"server\">
+          <meta name=\"author\" content=\"anesthetice\">
+          <title>Roundhay 1.2.0</title>
+          <style>
+              table {{
+                  width: 100%;
+                  border-collapse: collapse;
+                  border: thin solid #ccc;
+              }}
+              th, td {{
+                  padding: 8px;
+                  text-align: left;
+                  border-bottom: 1px solid #ccc;
+              }}
+              th {{
+                  background-color: #f2f2f2;
+                  font-weight: bold;
+              }}
+              .hidden {{
+                  display: none;
+              }}
+              tr:hover {{background-color: #D6EEEE;}}
+          </style>
+      </head>
+      <body>"
+    };
 
     let javascript: String = "
     <script>
@@ -98,10 +107,38 @@ async fn dynamic_handler() -> impl IntoResponse {
     "
     .to_string();
 
-    let html_table = Superunit::load().await.as_html_string();
+    let html_table = Superunit::load().as_html_string();
 
     Html(format!(
         "{}{}{}</body>\n</html>",
         html_head, html_table, javascript
     ))
+}
+
+async fn stream_dynamic_handler(Query(params): Query<HashMap<String, String>> ) -> impl IntoResponse {
+    if let Some(link) = params.get("source") {
+        Html(indoc::formatdoc! {
+            "<!DOCTYPE html>
+            <html lang=\"en\">
+            <head>
+                <meta charset=\"UTF-8\">
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+                <meta name=\"description\" content=\"server\">
+                <meta name=\"author\" content=\"anesthetice\">
+                <title>Roundhay 1.2.0</title>
+            </head>
+            <body style=\"background-color:#000000;\">
+                <center>
+                <video controls>
+                    <source src=\"/res/{}\" type=\"video/mp4\">
+                    unable to play the video
+                </video>
+                </center>
+            </body>
+            </html>", 
+            link
+        })
+    } else {
+        Html("Error 404".to_string())
+    }
 }

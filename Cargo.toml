@@ -1,15 +1,16 @@
 [package]
 name = "roundhay-server"
-version = "1.1.0"
+version = "1.2.0"
 edition = "2021"
 
 [dependencies]
-tokio = {version="1.28.*", features=["full"]}
-axum = {version="0.6.*"}
-tower-http = {version="0.4.*", features=["fs"]}
-serde = {version="1.0.*", features=["derive"]}
-serde_json = {version="1.0.*"}
-ryu = {version="1.0.*"}
+tokio       =   {version="1.28.*", features=["full"]}
+axum        =   {version="0.7.*"}
+tower-http  =   {version="0.5.*", features=["fs"]}
+serde       =   {version="1.0.*", features=["derive"]}
+serde_json  =   {version="1.0.*"}
+ryu         =   {version="1.0.*"}
+indoc       =   {version="2.0.4"}
 
 [profile.release]
 opt-level = 3

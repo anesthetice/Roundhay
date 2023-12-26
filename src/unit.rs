@@ -56,8 +56,8 @@ impl WebContent for UnitSingle {
             }
         }
 
-        format!(
-            "            <tr>
+        indoc::formatdoc! {
+           "<tr>
                 <td>
                     <span title=\"{}\">
                         {}
@@ -82,8 +82,13 @@ impl WebContent for UnitSingle {
                     {}
                 </td>
                 <td>
-                    <a href=\"/download/{}\" download>
+                    <a href=\"/res/{}\" download>
                         ⬇
+                    </a>
+                </td>
+                <td>
+                    <a href=\"/stream/?source={}\">
+                        ▶
                     </a>
                 </td>
             </tr>
@@ -96,8 +101,9 @@ impl WebContent for UnitSingle {
             self.resolution.as_string(),
             self.encoding.as_string(),
             ryu::Buffer::new().format_finite(self.size),
-            self.path.to_str().unwrap_or("error")
-        )
+            self.path.to_str().unwrap_or("error"),
+            self.path.to_str().unwrap_or("error"),
+        }
     }
 }
 
@@ -111,8 +117,8 @@ pub struct UnitGroup {
 
 impl WebContent for UnitGroup {
     fn as_html_string(&self) -> String {
-        let mut string: String = format!(
-            "            <tr>
+        let mut string: String = indoc::formatdoc!(
+           "<tr>
                 <td>
                     <span title=\"{}\">
                         <u onclick=\"showhideElements('{}')\">
@@ -144,7 +150,6 @@ impl WebContent for UnitGroup {
                     .as_ref(),
             );
         });
-
         string
     }
 }
