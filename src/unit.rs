@@ -135,6 +135,7 @@ impl WebContent for UnitGroup {
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
             </tr>
 ",
             self.description, self.title, self.title, self.year

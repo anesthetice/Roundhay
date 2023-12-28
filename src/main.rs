@@ -32,7 +32,7 @@ fn routes_static() -> Router {
     Router::new().nest_service(
         "/res/",
         get_service(
-          ServeDir::new("../res")
+          ServeDir::new("./res")
             .with_buf_chunk_size(2097152)
           ),
     )
