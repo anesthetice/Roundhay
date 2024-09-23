@@ -1,5 +1,8 @@
 ### Roundhay - a local network media server
 
+#### Archived
+Improved version, called Silvus
+
 #### Usage
 
 * any file that is placed inside the ./res directory will be available to download
